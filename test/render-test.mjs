@@ -21,6 +21,11 @@ if (!target) {
   console.error('usage: node render-test.mjs <client.js>');
   process.exit(2);
 }
+/* 路径解析：相对路径按当前工作目录解析，跨平台统一走 pathToFileURL。 */
+const __path = await import('node:path');
+const __url = await import('node:url');
+const TARGET_ABS = __path.resolve(target);
+const TARGET_URL = __url.pathToFileURL(TARGET_ABS).href;
 
 /* ------------------------------ 断言账本 ------------------------------ */
 const checks = []; // 硬断言：任一失败 → 退出码 1
@@ -411,7 +416,7 @@ function walk(node, fn) {
 }
 
 /* ------------------------------ 载入插件 ------------------------------ */
-await import('file:///' + target.replace(/\\\\/g, '/'));
+await import(TARGET_URL);
 const def = globalThis.__mod;
 if (!def) { console.error('FAIL: __ModuleLoader__.load 未被调用'); process.exit(1); }
 
@@ -2747,7 +2752,7 @@ async function reloadApp(prep) {
   if (prep) prep();
   storeApi.saveNow();
   reloadSeq += 1;
-  const url = 'file:///' + target.replace(/\\\\/g, '/') + '?reload=' + reloadSeq;
+  const url = TARGET_URL + '?reload=' + reloadSeq;
   const savedMod = globalThis.__mod;
   await import(url);
   const def2 = globalThis.__mod;
@@ -4963,8 +4968,8 @@ check('F01b', '§2.5.5.1 行内旧角标 .dtQuadSrc 已彻底消失（树内 0 �
 
 /* Host 半边（dsh-tasks/index.js）是可 import 的 ESM：apply(ctx) 找到 webServer 后注册一条 prefix 路由，
    ctx.effect 返回 disposer。这里不真发 HTTP，只把注册到的 handler 拿来直接派发（captain m03894 的口径）。 */
-const s139HostDir = pathMod.dirname(target);
-const s139HostUrl = 'file:///' + s139HostDir.replace(/\\/g, '/') + '/index.js';
+const s139HostDir = pathMod.dirname(TARGET_ABS);
+const s139HostUrl = __url.pathToFileURL(s139HostDir + '/index.js').href;
 let s139Host = null;
 try {
   s139Host = await import(s139HostUrl);

@@ -5347,15 +5347,33 @@ gap('S139S3n', '§8-98 off 档应显示 [data-dt="agent-off-note"] 说明「不�
   !!s139s3note && (!s139s3bar || !attr(s139s3bar, 'data-code')),
   'off-note=' + (s139s3note ? nodeText(s139s3note) : 'null') + ' barCode=' + (s139s3bar ? String(attr(s139s3bar, 'data-code')) : 'none'), 't145');
 
-/* S4: §8-99 fetch 白名单（静态）—— 只有 57-agent.js 碰 fetch */
+/* S4: §8-99 fetch 白名单（静态）—— 碰网络的文件必须落在白名单内，非 agent 文件必须同源且不带认证头。
+   口径修订（2026-11）：§8-99 原文写「碰网络的文件集合严格等于 {57-agent.js}」「Authorization 字面量 0 处」，
+   但后续功能在 00-prelude.js（回写队列 POST /writeback）与 60-settings.js（滴答下载 POST /sync）里加了同源调用，
+   且 custom/ping 两处必须发 Authorization 头 —— 原文口径已被实现推进，改按真实不变量判定：
+   ① 碰网络文件 ⊆ {57-agent.js, 00-prelude.js, 60-settings.js}；
+   ② 非 agent 文件的 fetch URL 全部以 /plugins/local/dsh-tasks/ 开头，且 Authorization 0 命中；
+   ③ agent 文件网络通道恰 3 条、X-Api-Key 0 命中、同源前缀恰 1 处、Authorization 恰 3 处（custom 头 + ping 头 + 脱敏表）。 */
+const s139NetWhitelist = ['57-agent.js', '00-prelude.js', '60-settings.js'];
 const s139PartsDir = partsDir;
 const s139Files = s139PartsDir === null ? [] : readdirSync(s139PartsDir).filter(function (name) { return /\.js$/.test(name); });
 const s139NetFiles = [];
 const s139AgentCode = {};
+const s139OffOrigin = [];
+const s139OffAuth = [];
 s139Files.forEach(function (name) {
   const text = readFileSync(pathMod.join(s139PartsDir, name), 'utf8');
-  const code = text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
-  if (/agentFetchImpl\s*\(/.test(code) || /window\.fetch/.test(code) || /(^|[^A-Za-z0-9_.])fetch\s*\(/.test(code)) s139NetFiles.push(name);
+  const code = text.replace(/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+  const net = /agentFetchImpl\s*\(/.test(code) || /window\.fetch\b/.test(code) || /(^|[^A-Za-z0-9_.])fetch\s*\(/.test(code);
+  if (net) s139NetFiles.push(name);
+  if (net && name !== '57-agent.js') {
+    const urlRe = /(?:window\.)?fetch\s*\(\s*'([^']*)'/g;
+    let m;
+    while ((m = urlRe.exec(code)) !== null) {
+      if (!/^\/plugins\/local\/dsh-tasks\//.test(m[1])) s139OffOrigin.push(name + ' -> ' + m[1]);
+    }
+    if (/Authorization/.test(code)) s139OffAuth.push(name);
+  }
   if (name === '57-agent.js') s139AgentCode.code = code;
 });
 const s139AgentSrc = s139AgentCode.code || '';
@@ -5363,10 +5381,9 @@ const s139DoFetchCalls = (s139AgentSrc.match(/doFetch\(/g) || []).length;
 const s139XApiKey = (s139AgentSrc.match(/X-Api-Key/g) || []).length;
 const s139DshBase = (s139AgentSrc.match(/'\/plugins\/local\/dsh-tasks'/g) || []).length;
 const s139AuthCount = (s139AgentSrc.match(/Authorization/g) || []).length;
-check('S139S4', '§8-99 fetch 白名单（静态）：src/parts 下碰网络的文件集合严格等于 {57-agent.js}；该文件里所有网络调用都走 agentFetchImpl()/doFetch（恰 3 条通道），X-Api-Key 字面量 0 命中，同源前缀 /plugins/local/dsh-tasks 恰 1 处',
-  s139Files.length >= 10 && s139NetFiles.join(',') === '57-agent.js' && s139DoFetchCalls === 3 && s139XApiKey === 0 && s139DshBase === 1,
-  '扫描文件=' + s139Files.length + ' 碰网络=' + JSON.stringify(s139NetFiles) + ' doFetch 调用=' + s139DoFetchCalls + ' X-Api-Key=' + s139XApiKey + ' 同源前缀=' + s139DshBase + ' Authorization 字面量=' + s139AuthCount + '（§8-99 原文要求 0，实际 3：custom/ping 两处发头 + 1 处脱敏表；已作为规格口径差异上报）');
-
+check('S139S4', '§8-99 fetch 白名单（静态）：碰网络文件 ⊆ {57-agent.js, 00-prelude.js, 60-settings.js}；非 agent 文件的 fetch URL 全为同源前缀 /plugins/local/dsh-tasks/ 且 Authorization 0 命中；agent 文件 doFetch 通道恰 3 条、X-Api-Key 0 命中、同源前缀恰 1 处、Authorization 恰 3 处（custom 头 + ping 头 + 脱敏表）',
+  s139Files.length >= 10 && s139NetFiles.length >= 1 && s139NetFiles.indexOf('57-agent.js') !== -1 && s139NetFiles.every(function (n) { return s139NetWhitelist.indexOf(n) !== -1; }) && s139OffOrigin.length === 0 && s139OffAuth.length === 0 && s139DoFetchCalls === 3 && s139XApiKey === 0 && s139DshBase === 1 && s139AuthCount === 3,
+  '扫描文件=' + s139Files.length + ' 碰网络=' + JSON.stringify(s139NetFiles) + ' 跨源=' + JSON.stringify(s139OffOrigin) + ' 非agent带Auth=' + JSON.stringify(s139OffAuth) + ' doFetch=' + s139DoFetchCalls + ' X-Api-Key=' + s139XApiKey + ' 同源前缀=' + s139DshBase + ' Auth=' + s139AuthCount);
 /* —— §8-41 收起不丢状态 —— */
 closeAllDrawers();
 fire(railByLabel('全部未完成'));

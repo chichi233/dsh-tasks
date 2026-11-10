@@ -8,3 +8,15 @@ client.js.tmp
 test/.tmp/
 .DS_Store
 Thumbs.db
+
+# 凭据与密钥（隐私体检基线）
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+.npmrc
+credentials.json

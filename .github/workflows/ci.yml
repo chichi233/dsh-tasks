@@ -1,0 +1,47 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render-test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Build demo bundle
+        run: node build.mjs --seed test/fixtures/demo --out client.demo.js
+      - name: Render test
+        run: node test/render-test.mjs ./client.demo.js
+
+  blank-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Rebuild blank client.js from src/parts
+        run: node build.mjs --out client.check.js
+      - name: Assert the shipped bundle is reproducible
+        run: |
+          node -e "
+          const fs=require('fs');
+          const a=fs.readFileSync('client.js','utf8');
+          const b=fs.readFileSync('client.check.js','utf8');
+          const norm=s=>s.replace(/20\d\d-\d\d-\d\dT[\d:.]+Z/g,'<ts>');
+          if(norm(a)!==norm(b)){console.error('client.js is stale: rebuild and commit');process.exit(1);}
+          console.log('client.js matches build output');
+          "

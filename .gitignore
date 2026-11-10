@@ -1,0 +1,10 @@
+node_modules/
+client.demo.js
+seed/
+seed.json
+*.tmp
+.client.js.tmp
+client.js.tmp
+test/.tmp/
+.DS_Store
+Thumbs.db

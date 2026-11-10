@@ -1,0 +1,10 @@
+{
+  "meta": {
+    "title": "Tasks & Pomodoro",
+    "description": "Project lists, due-date reminders and a pomodoro clock in the sidebar."
+  },
+  "tasks": {
+    "title": "Tasks",
+    "description": "Project lists, due-date reminders and a pomodoro clock in the sidebar."
+  }
+}

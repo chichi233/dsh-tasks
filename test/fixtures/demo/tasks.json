@@ -1,0 +1,19 @@
+{
+  "projects": [
+    { "id": "inbox", "name": "收集箱", "color": "#4C9AFF", "inbox": true },
+    { "id": "work", "name": "工作", "color": "#FF7500" },
+    { "id": "life", "name": "生活", "color": "#41BA41" }
+  ],
+  "tasks": [
+    { "id": "d01", "projectId": "inbox", "title": "整理本周收件箱", "content": "把未分类的条目归到对应清单", "priority": 3, "status": 0, "date": "2026-11-10", "allDay": true, "tags": ["常规"], "createdAt": "2026-11-08T09:00:00.000Z" },
+    { "id": "d02", "projectId": "inbox", "title": "回复合作邮件", "priority": 5, "status": 0, "date": "2026-11-10", "allDay": false, "remindAt": "2026-11-10T14:00", "tags": ["沟通"], "createdAt": "2026-11-09T02:10:00.000Z" },
+    { "id": "d03", "projectId": "work", "title": "写插件说明文档", "content": "安装、配置、已知边界各一节", "priority": 5, "status": 0, "date": "2026-11-11", "allDay": true, "tags": ["文档"], "createdAt": "2026-11-07T03:20:00.000Z" },
+    { "id": "d04", "projectId": "work", "title": "评审数据迁移脚本", "priority": 3, "status": 0, "date": "2026-11-12", "allDay": true, "createdAt": "2026-11-08T06:40:00.000Z" },
+    { "id": "d05", "projectId": "work", "title": "修番茄钟计时误差", "priority": 1, "status": 0, "subtasks": [], "createdAt": "2026-11-06T01:05:00.000Z" },
+    { "id": "d06", "projectId": "life", "title": "预约体检", "priority": 3, "status": 0, "date": "2026-11-13", "allDay": true, "tags": ["健康"], "createdAt": "2026-11-05T10:00:00.000Z" },
+    { "id": "d07", "projectId": "life", "title": "买跑鞋", "priority": 1, "status": 2, "date": "2026-11-09", "allDay": true, "completedAt": "2026-11-09T11:30:00.000Z", "createdAt": "2026-11-04T08:00:00.000Z" },
+    { "id": "d08", "projectId": "work", "title": "备考周会材料", "priority": 3, "status": 2, "date": "2026-11-08", "allDay": true, "completedAt": "2026-11-08T09:15:00.000Z", "createdAt": "2026-11-03T02:00:00.000Z" },
+    { "id": "d09", "projectId": "inbox", "title": "示例已删除任务", "priority": 0, "status": 0, "deleted": true, "createdAt": "2026-11-02T07:00:00.000Z" },
+    { "id": "d10", "projectId": "life", "title": "每周复盘", "priority": 3, "status": 0, "date": "2026-11-15", "allDay": true, "repeat": "RRULE:FREQ=WEEKLY;BYDAY=SU", "createdAt": "2026-11-01T12:00:00.000Z" }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "name": "@local/dsh-tasks",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Task, habit, pomodoro and reminder panel for the DSH sidebar. Client-only plugin: data lives in browser localStorage.",
+  "license": "MIT",
+  "keywords": ["dsh", "dsh-plugin", "tasks", "todo", "pomodoro", "reminders"],
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "node build.mjs",
+    "build:demo": "node build.mjs --seed test/fixtures/demo --out client.demo.js",
+    "test": "node build.mjs --seed test/fixtures/demo --out client.demo.js && node test/render-test.mjs ./client.demo.js"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-sidebar",
+        "@deepseek-ai/dsh-client-ui-workspace"
+      ]
+    }
+  }
+}

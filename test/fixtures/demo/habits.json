@@ -1,0 +1,32 @@
+{
+  "habits": [
+    {
+      "id": "h01",
+      "name": "早起",
+      "color": "#4C9AFF",
+      "period": "morning",
+      "currentStreak": 3,
+      "longestStreak": 12,
+      "checkInCount": 40,
+      "frequency": { "type": "daily", "interval": 1 },
+      "targetStartDate": "2026-09-01"
+    },
+    {
+      "id": "h02",
+      "name": "阅读 30 分钟",
+      "color": "#41BA41",
+      "period": "evening",
+      "currentStreak": 1,
+      "longestStreak": 8,
+      "checkInCount": 21,
+      "frequency": { "type": "weekly", "interval": 1, "byDay": ["MO", "WE", "FR"] },
+      "targetStartDate": "2026-10-01"
+    }
+  ],
+  "checkIns": [
+    { "habitId": "h01", "date": "2026-11-08" },
+    { "habitId": "h01", "date": "2026-11-09" },
+    { "habitId": "h01", "date": "2026-11-10" },
+    { "habitId": "h02", "date": "2026-11-09" }
+  ]
+}
